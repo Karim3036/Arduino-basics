@@ -65,7 +65,7 @@ void Stop ()
   
 }
 
-void Break ()
+void Brake ()
 {
   digitalWrite(IN_1,HIGH);
   digitalWrite(IN_2,HIGH);
@@ -115,7 +115,7 @@ void loop() {
     else if (digitalRead(IR_M) == 1 && digitalRead(IR_L)==1 && digitalRead(IR_R)==1)
     {
       Serial.println("stop");
-      Break();
+      Brake();
       delay(2000);
       Forward(Speed);
       delay(200);
@@ -124,7 +124,7 @@ void loop() {
     else if(digitalRead(IR_M) == 0 && digitalRead(IR_L)==1 && digitalRead(IR_R)==1) //middle sensor=0, left and right=1 ; finish
     {
       Serial.println("finish");
-      Break();
+      Brake();
       flag=1;
     }
     //else Break();
