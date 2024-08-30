@@ -1,31 +1,27 @@
-#define EN_R 3
-#define IN_1 2
-#define IN_2 4
-#define EN_L 6
-#define IN_3 5
-#define IN_4 7
+#define EN_R 6
+#define IN_1 7
+#define IN_2 8
+#define EN_L 5
+#define IN_3 4
+#define IN_4 3
  
-#define IR_M 8
-#define IR_R 9
-#define IR_L 10
-// 1 black
-// 0 white
+#define IR_M 13
+#define IR_R 11
+#define IR_L 12
+#define Speed 180
 
-#define trig 11
-#define echo 12
-
-float distance,duration;
+int flag;
 
 void Forward(int speed)
 {   // Right wheel forward
     analogWrite(EN_R,speed);
-    digitalWrite(IN_1,HIGH);
-    digitalWrite(IN_2,LOW);
+    digitalWrite(IN_1,LOW);
+    digitalWrite(IN_2,HIGH);
 
     // Left wheel forward
     analogWrite(EN_L,speed);
-    digitalWrite(IN_3,HIGH);
-    digitalWrite(IN_4,LOW);
+    digitalWrite(IN_3,LOW);
+    digitalWrite(IN_4,HIGH);
     
 }
 
@@ -41,6 +37,7 @@ void Left(int speed)
     analogWrite(EN_L,speed);
     digitalWrite(IN_3,LOW);
     digitalWrite(IN_4,HIGH);
+    delay(50);
     
 }
 
@@ -56,6 +53,7 @@ void Right(int speed)
     analogWrite(EN_L,speed);
     digitalWrite(IN_3,HIGH);
     digitalWrite(IN_4,LOW);
+    delay(50);
 }
 
 void Stop ()
@@ -67,25 +65,14 @@ void Stop ()
   
 }
 
-float Ultra_distance ()
+void Break ()
 {
-  digitalWrite(trig,LOW);
-
-  delayMicroseconds(2);
-
-  digitalWrite(trig,HIGH);
-
-  delayMicroseconds(10);
-
-  digitalWrite(trig,LOW);
-
-  duration=pulseIn(echo,HIGH);
-
-  distance= (duration*0.0343)/2;
-
-  return distance;
+  digitalWrite(IN_1,HIGH);
+  digitalWrite(IN_2,HIGH);
+  digitalWrite(IN_3,HIGH);
+  digitalWrite(IN_4,HIGH);
+  
 }
-
 
 void setup() {
   
@@ -100,33 +87,47 @@ void setup() {
   pinMode(IR_M, INPUT);
   pinMode(IR_R, INPUT);
   pinMode(IR_L, INPUT);
-
-  pinMode(trig, OUTPUT);
-  pinMode(echo, INPUT);
+  delay(1000);
+  flag=0;
+  TCCR0B = TCCR0B & B11111000 | B00000010 ;
 
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  
-  while (Ultra_distance <= 20) //ultrasonic reads less than 15 cm
+  while(flag==0)
   {
-    if(IR_M == 1 && IR_L==0 && IR_R==0) // middle sensor=1, left and right=0 ; move forward
+    if(digitalRead(IR_M) == 1 && digitalRead(IR_L)==0 && digitalRead(IR_R)==0) // middle sensor=1, left and right=0 ; move forward
     {
-      Forward(128);
+      Serial.println("for");
+      Forward(Speed);
     }
-    else if(IR_M == 0 && IR_L==1 && IR_R==0) //Left sensor=1, middle and right=0 ; turn left
+    else if( digitalRead(IR_L)==1 && digitalRead(IR_R)==0) //Left sensor=1, middle and right=0 ; turn left
     {
-      Left(128);
+      Serial.println("left");
+      Left(Speed-10);
     }
-    else if(IR_M == 0 && IR_L==0 && IR_R==1) //Right sensor=1, middle and left=0 ; turn right
+    else if( digitalRead(IR_L)==0 && digitalRead(IR_R)==1) //Right sensor=1, middle and left=0 ; turn right
     {
-      Right(128);
+      Serial.println("right");
+      Right(Speed-10);
     }
-    else if(IR_M == 0 && IR_L==1 && IR_R==1) //middle sensor=0, left and right=1 ; stop
+    else if (digitalRead(IR_M) == 1 && digitalRead(IR_L)==1 && digitalRead(IR_R)==1)
     {
-      Stop();
+      Serial.println("stop");
+      Break();
+      delay(2000);
+      Forward(Speed);
+      delay(200);
     }
-    
+
+    else if(digitalRead(IR_M) == 0 && digitalRead(IR_L)==1 && digitalRead(IR_R)==1) //middle sensor=0, left and right=1 ; finish
+    {
+      Serial.println("finish");
+      Break();
+      flag=1;
+    }
+    //else Break();
   }
+
 }
