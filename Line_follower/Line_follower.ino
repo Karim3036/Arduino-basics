@@ -10,7 +10,7 @@
 #define IR_L 12
 #define Speed 180
 
-int flag;
+int End;
 
 void Forward(int speed)
 {   // Right wheel forward
@@ -88,14 +88,14 @@ void setup() {
   pinMode(IR_R, INPUT);
   pinMode(IR_L, INPUT);
   delay(1000);
-  flag=0;
+  End=0;
   TCCR0B = TCCR0B & B11111000 | B00000010 ;
 
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  while(flag==0)
+  while(End==0)
   {
     if(digitalRead(IR_M) == 1 && digitalRead(IR_L)==0 && digitalRead(IR_R)==0) // middle sensor=1, left and right=0 ; move forward
     {
@@ -125,7 +125,7 @@ void loop() {
     {
       Serial.println("finish");
       Brake();
-      flag=1;
+      End=1;
     }
     //else Break();
   }
