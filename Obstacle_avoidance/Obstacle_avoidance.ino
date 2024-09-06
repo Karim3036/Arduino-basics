@@ -104,16 +104,15 @@ void setup() {
 
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
-
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   Forward(speed);
+  x=0;
+  while (Ultra_distance() <= 20); 
   
-  while (Ultra_distance <= 20){};
-  
-  Brake();
+ Brake();
 
   Right(speed);
  
